@@ -16,6 +16,7 @@ import com.simperium.client.ClientFactory;
 import com.simperium.client.GhostStorageProvider;
 import com.simperium.client.Syncable;
 import com.simperium.client.User;
+import com.simperium.database.DatabaseHelper;
 import com.simperium.database.DatabaseProvider;
 import com.simperium.storage.StorageProvider;
 import com.simperium.storage.StorageProvider.BucketStore;
@@ -250,8 +251,25 @@ public class Simperium implements User.StatusChangeListener {
 
     }
 
-    public void changePassword(String password){
-        mDatabaseProvider.changePassword(password);
+    /**
+     *
+     * @param context application context
+     * @param password new password, if it is null, empty password will be used
+     * @return true, if password change was successful
+     */
+    //TODO: context should be moved out from the method params (but try to keep backward compatibility)
+    public boolean changePassword(Context context, String password){
+
+        if (password == null){
+            password = "";
+        }
+
+        boolean successful = mDatabaseProvider.changePassword(password);
+        if (successful)
+        {
+            DatabaseHelper.saveDatabaseEncryptionKey(context, password);
+        }
+        return successful;
     }
 
 }

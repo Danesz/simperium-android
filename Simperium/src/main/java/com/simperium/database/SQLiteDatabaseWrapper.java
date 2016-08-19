@@ -89,7 +89,9 @@ public class SQLiteDatabaseWrapper implements DatabaseInterface {
     }
 
     @Override
-    public void changePassword(String password) throws RuntimeException {
+    public boolean changePassword(String password) throws RuntimeException {
         //not supported
+        return false;
     }
+
 }

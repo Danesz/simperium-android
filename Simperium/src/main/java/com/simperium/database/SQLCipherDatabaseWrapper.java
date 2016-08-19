@@ -3,7 +3,10 @@ package com.simperium.database;
 import android.content.ContentValues;
 import android.database.Cursor;
 
+import com.simperium.util.Logger;
+
 import net.sqlcipher.database.SQLiteDatabase;
+import net.sqlcipher.database.SQLiteException;
 
 /**
  * Created by daniel on 19/08/16.
@@ -13,6 +16,7 @@ import net.sqlcipher.database.SQLiteDatabase;
  */
 public class SQLCipherDatabaseWrapper implements DatabaseInterface {
 
+    private static final String TAG = "SQLCipherDatabaseWrapper";
     protected SQLiteDatabase mDatabase;
 
     public SQLCipherDatabaseWrapper(SQLiteDatabase database){
@@ -90,7 +94,19 @@ public class SQLCipherDatabaseWrapper implements DatabaseInterface {
     }
 
     @Override
-    public void changePassword(String password) throws RuntimeException {
-        mDatabase.changePassword(password);
+    public boolean changePassword(String password) throws RuntimeException {
+        try {
+            mDatabase.changePassword(hashPassword(password));
+            return true;
+        } catch (SQLiteException e) {
+            Logger.log(TAG, "Changing password failed!", e);
+        } catch (IllegalArgumentException e){
+            Logger.log(TAG, "Changing password failed in hashing!", e);
+        }
+        return false;
+    }
+
+    public String hashPassword(String password) throws IllegalArgumentException {
+        return DatabaseHelper.wrapPassword(password);
     }
 }

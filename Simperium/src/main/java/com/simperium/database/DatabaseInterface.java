@@ -14,6 +14,8 @@ import android.content.ContentValues;
  */
 public interface DatabaseInterface {
 
+
+    //default SQLite methods
     public void execSQL(String sql) throws RuntimeException;
 
     public android.database.Cursor query(String table, String[] columns, String selection, String[] selectionArgs, String groupBy, String having, String orderBy);
@@ -42,8 +44,7 @@ public interface DatabaseInterface {
 
     public void setVersion(int version);
 
-    public void changePassword(String password) throws RuntimeException;
-
-
+    //SQLCipher methods
+    public boolean changePassword(String password) throws RuntimeException;
 
 }

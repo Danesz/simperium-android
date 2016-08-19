@@ -1,10 +1,14 @@
 package com.simperium.android;
 
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.koushikdutta.async.http.AsyncHttpClient;
 import com.simperium.client.ClientFactory;
+import com.simperium.database.DatabaseHelper;
+import com.simperium.database.DatabaseInterface;
 import com.simperium.database.DatabaseProvider;
 import com.simperium.database.SQLiteDatabaseWrapper;
 
@@ -33,14 +37,12 @@ public class AndroidClient implements ClientFactory {
         mExecutor = AndroidClientHelper.getDefaultThreadExecutor();
         mContext = context;
 
-        SQLiteDatabase database = mContext.openOrCreateDatabase(AndroidClientHelper.DEFAULT_DATABASE_NAME, 0, null);
-        mDatabaseProvider = new DatabaseProvider(new SQLiteDatabaseWrapper(database));
+        mDatabaseProvider = DatabaseHelper.provideNotEncryptedDatabase(mContext, Constants.DEFAULT_DATABASE_NAME);
 
         mSessionId = AndroidClientHelper.generateSessionID(mContext);
 
         TrustManager[] trustManagers = new TrustManager[] { AndroidClientHelper.buildPinnedTrustManager(context) };
         mHttpClient.getSSLSocketMiddleware().setTrustManagers(trustManagers);
-
     }
 
     @Override

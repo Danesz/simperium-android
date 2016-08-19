@@ -85,7 +85,8 @@ public class DatabaseProvider implements DatabaseInterface {
     }
 
     @Override
-    public void changePassword(String password) throws RuntimeException {
-        mDatabaseImplementation.changePassword(password);
+    public boolean changePassword(String password) throws RuntimeException {
+        return mDatabaseImplementation.changePassword(password);
     }
+
 }

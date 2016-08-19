@@ -7,6 +7,7 @@ import android.util.Log;
 import com.koushikdutta.async.http.AsyncHttpClient;
 import com.simperium.BuildConfig;
 import com.simperium.client.ClientFactory;
+import com.simperium.database.DatabaseHelper;
 import com.simperium.database.DatabaseProvider;
 import com.simperium.database.SQLCipherDatabaseWrapper;
 
@@ -37,19 +38,9 @@ public class SecureAndroidClient implements ClientFactory {
         mExecutor = AndroidClientHelper.getDefaultThreadExecutor();
         mContext = context;
 
-        String defaultKey = Settings.Secure.getString(mContext.getContentResolver(), Settings.Secure.ANDROID_ID);
-
-        if (BuildConfig.DEBUG) {
-            Log.d(TAG, "key: " + defaultKey);
-        }
-
         SQLiteDatabase.loadLibs(context);
 
-        String dbPath = "/data/data/" + mContext.getPackageName() + "/" +AndroidClientHelper.DEFAULT_DATABASE_NAME;
-        //String dbPath = mContext.getDatabasePath(AndroidClientHelper.DEFAULT_DATABASE_NAME).getAbsolutePath();
-
-        SQLiteDatabase database = SQLiteDatabase.openOrCreateDatabase( dbPath, defaultKey, null);
-        mDatabaseProvider = new DatabaseProvider(new SQLCipherDatabaseWrapper(database));
+        mDatabaseProvider = DatabaseHelper.provideDefaultEncryptedDatabase(context, Constants.SECURE_DATABASE_NAME);
 
         mSessionId = AndroidClientHelper.generateSessionID(mContext);
 
