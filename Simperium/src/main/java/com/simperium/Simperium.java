@@ -1,6 +1,7 @@
 package com.simperium;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.simperium.client.AuthException;
 import com.simperium.client.AuthProvider;
@@ -15,6 +16,7 @@ import com.simperium.client.ClientFactory;
 import com.simperium.client.GhostStorageProvider;
 import com.simperium.client.Syncable;
 import com.simperium.client.User;
+import com.simperium.database.DatabaseProvider;
 import com.simperium.storage.StorageProvider;
 import com.simperium.storage.StorageProvider.BucketStore;
 import com.simperium.util.AuthUtil;
@@ -53,6 +55,7 @@ public class Simperium implements User.StatusChangeListener {
     protected AuthProvider mAuthProvider;
     protected ChannelProvider mChannelProvider;
     protected StorageProvider mStorageProvider;
+    protected DatabaseProvider mDatabaseProvider;
     protected GhostStorageProvider mGhostStorageProvider;
     protected Executor mExecutor;
 
@@ -65,6 +68,8 @@ public class Simperium implements User.StatusChangeListener {
         mChannelProvider = factory.buildChannelProvider(appId);
 
         mStorageProvider = factory.buildStorageProvider();
+
+        mDatabaseProvider = factory.buildDatabaseProvider();
 
         mGhostStorageProvider = factory.buildGhostStorageProvider();
 
@@ -243,6 +248,10 @@ public class Simperium implements User.StatusChangeListener {
             mListener.onFailure(user, error);
         }
 
+    }
+
+    public void changePassword(String password){
+        mDatabaseProvider.changePassword(password);
     }
 
 }

@@ -6,6 +6,8 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import com.simperium.client.Bucket;
 import com.simperium.client.Query;
+import com.simperium.database.DatabaseProvider;
+import com.simperium.database.SQLiteDatabaseWrapper;
 import com.simperium.models.Note;
 import com.simperium.storage.StorageProvider.BucketStore;
 import com.simperium.test.MockChannel;
@@ -168,7 +170,7 @@ public class PersistentStoreTest extends PersistentStoreBaseTest {
         DatabaseHelper helper = new DatabaseHelper(mDatabaseName);
         mDatabaseName = helper.getDatabaseName();
         helper.createDatabase();
-        mStore = new PersistentStore(helper.getWritableDatabase());
+        mStore = new PersistentStore(new DatabaseProvider(new SQLiteDatabaseWrapper(helper.getWritableDatabase())));
         BucketStore<Note> store = mStore.createStore(bucketName, schema);
         mBucket = new Bucket<Note>(MockExecutor.immediate(), BUCKET_NAME, mSchema, mUser, store, mGhostStore);
 
@@ -252,7 +254,7 @@ public class PersistentStoreTest extends PersistentStoreBaseTest {
         DatabaseHelper helper = new DatabaseHelper(mDatabaseName);
         mDatabaseName = helper.getDatabaseName();
         helper.createDatabase();
-        mStore = new PersistentStore(helper.getWritableDatabase());
+        mStore = new PersistentStore(new DatabaseProvider(new SQLiteDatabaseWrapper(helper.getWritableDatabase())));
         BucketStore<Note> store = mStore.createStore(bucketName, schema);
 
         int count;

@@ -6,6 +6,8 @@ import android.test.ActivityInstrumentationTestCase2;
 
 import com.simperium.android.LoginActivity;
 import com.simperium.android.QueueSerializer;
+import com.simperium.database.DatabaseProvider;
+import com.simperium.database.SQLiteDatabaseWrapper;
 import com.simperium.client.Bucket;
 import com.simperium.client.BucketObject;
 import com.simperium.client.Change;
@@ -25,7 +27,7 @@ public class QueueSerializerTest extends ActivityInstrumentationTestCase2<LoginA
 
     protected void setUp() throws Exception {
         mDatabase = getActivity().openOrCreateDatabase("queue-test", 0, null);
-        mSerializer = new QueueSerializer(mDatabase);
+        mSerializer = new QueueSerializer(new DatabaseProvider(new SQLiteDatabaseWrapper(mDatabase)));
         BucketObject.Schema schema = new BucketObject.Schema("mock-bucket");
          mBucket = MockBucket.buildBucket(schema);
     }

@@ -8,6 +8,9 @@ import com.simperium.client.BucketSchema;
 import com.simperium.client.GhostStorageProvider;
 import com.simperium.client.User;
 
+import com.simperium.database.DatabaseProvider;
+import com.simperium.database.SQLiteDatabaseWrapper;
+
 import com.simperium.storage.StorageProvider.BucketStore;
 import com.simperium.models.Note;
 
@@ -49,7 +52,7 @@ public abstract class PersistentStoreBaseTest extends ActivityInstrumentationTes
         mActivity = getActivity();
         mDatabase = mActivity.openOrCreateDatabase(mDatabaseName, 0, null);
         mGhostStore = new MockGhostStore();
-        mStore = new PersistentStore(mDatabase);
+        mStore = new PersistentStore(new DatabaseProvider(new SQLiteDatabaseWrapper(mDatabase)));
         mSchema = new Note.Schema();
         mNoteStore = mStore.createStore(BUCKET_NAME, mSchema);
         mBucket = new Bucket<Note>(MockExecutor.immediate(), BUCKET_NAME, mSchema, mUser, mNoteStore, mGhostStore);

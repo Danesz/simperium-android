@@ -3,12 +3,14 @@ package com.simperium.android;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.SQLException;
-import android.database.sqlite.SQLiteDatabase;
 
 import com.simperium.client.Bucket;
 import com.simperium.client.Change;
 import com.simperium.client.Channel;
+import com.simperium.database.DatabaseProvider;
 import com.simperium.util.Logger;
+
+import net.sqlcipher.database.SQLiteDatabase;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -24,7 +26,7 @@ public class QueueSerializer implements Channel.Serializer {
     static public final String FIELD_OPERATION = "operation";
     static public final String FIELD_CCID      = "ccid";
 
-    protected SQLiteDatabase mDatabase;
+    protected DatabaseProvider mDatabase;
 
     private enum Status {
         QUEUED("Q"), PENDING("P");
@@ -41,7 +43,7 @@ public class QueueSerializer implements Channel.Serializer {
         }
     }
 
-    public QueueSerializer(SQLiteDatabase database) {
+    public QueueSerializer(DatabaseProvider database) {
         mDatabase = database;
         prepare();
     }

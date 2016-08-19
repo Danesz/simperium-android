@@ -2,14 +2,16 @@ package com.simperium.android;
 
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.text.TextUtils;
 
 import com.simperium.client.Bucket;
 import com.simperium.client.Ghost;
 import com.simperium.client.GhostMissingException;
 import com.simperium.client.GhostStorageProvider;
+import com.simperium.database.DatabaseProvider;
 import com.simperium.util.Logger;
+
+import net.sqlcipher.database.SQLiteDatabase;
 
 import org.json.JSONObject;
 
@@ -26,9 +28,9 @@ public class GhostStore implements GhostStorageProvider {
     private static final String PAYLOAD_FIELD="payload";
     private static final String CHANGE_VERSION_FIELD="changeVersion";
 
-    private SQLiteDatabase database;
+    private DatabaseProvider database;
 
-    public GhostStore(SQLiteDatabase database) {
+    public GhostStore(DatabaseProvider database) {
         this.database = database;
         prepare();
     }

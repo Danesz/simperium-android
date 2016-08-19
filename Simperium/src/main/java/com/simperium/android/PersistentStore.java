@@ -4,7 +4,6 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.CursorWrapper;
 import android.database.SQLException;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
 import android.util.Log;
 
@@ -16,8 +15,11 @@ import com.simperium.client.BucketSchema.Index;
 import com.simperium.client.FullTextIndex;
 import com.simperium.client.Query;
 import com.simperium.client.Syncable;
+import com.simperium.database.DatabaseProvider;
 import com.simperium.storage.StorageProvider;
 import com.simperium.util.Logger;
+
+import net.sqlcipher.database.SQLiteDatabase;
 
 import org.json.JSONObject;
 
@@ -34,9 +36,9 @@ public class PersistentStore implements StorageProvider {
     public static final String INDEXES_TABLE="indexes";
     public static final String REINDEX_QUEUE_TABLE="reindex_queue";
 
-    private SQLiteDatabase mDatabase;
+    private DatabaseProvider mDatabase;
 
-    public PersistentStore(SQLiteDatabase database) {
+    public PersistentStore(DatabaseProvider database) {
         mDatabase = database;
         configure();
     }
@@ -460,7 +462,7 @@ public class PersistentStore implements StorageProvider {
             compileQuery();
         }
 
-        protected Cursor query(SQLiteDatabase database) {
+        protected Cursor query(DatabaseProvider database) {
             String query = mSelection.append(mStatement).toString();
             if (mQuery.hasLimit()) {
                 query += String.format(Locale.US, " LIMIT %d", mQuery.getLimit());
@@ -470,7 +472,7 @@ public class PersistentStore implements StorageProvider {
             return database.rawQuery(query, mArgs);
         }
 
-        protected Cursor count(SQLiteDatabase database) {
+        protected Cursor count(DatabaseProvider database) {
             mSelection = new StringBuilder("SELECT count(objects.rowid) as `total` ");
             return database.rawQuery(mSelection.append(mStatement).toString(), mArgs);
         }

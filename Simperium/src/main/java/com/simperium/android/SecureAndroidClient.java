@@ -1,12 +1,16 @@
 package com.simperium.android;
 
 import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
+import android.provider.Settings;
+import android.util.Log;
 
 import com.koushikdutta.async.http.AsyncHttpClient;
+import com.simperium.BuildConfig;
 import com.simperium.client.ClientFactory;
 import com.simperium.database.DatabaseProvider;
-import com.simperium.database.SQLiteDatabaseWrapper;
+import com.simperium.database.SQLCipherDatabaseWrapper;
+
+import net.sqlcipher.database.SQLiteDatabase;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
@@ -17,9 +21,9 @@ import javax.net.ssl.TrustManager;
  * Refactoring as much of the android specific components of the client
  * and decoupling different parts of the API.
  */
-public class AndroidClient implements ClientFactory {
+public class SecureAndroidClient implements ClientFactory {
 
-    public static final String TAG = "Simperium.AndroidClient";
+    public static final String TAG = "Simperium.SecureAndroidClient";
 
     protected Context mContext;
     protected DatabaseProvider mDatabaseProvider;
@@ -28,13 +32,24 @@ public class AndroidClient implements ClientFactory {
     protected ExecutorService mExecutor;
     protected AsyncHttpClient mHttpClient = AsyncHttpClient.getDefaultInstance();
 
-    public AndroidClient(Context context){
+    public SecureAndroidClient(final Context context){
 
         mExecutor = AndroidClientHelper.getDefaultThreadExecutor();
         mContext = context;
 
-        SQLiteDatabase database = mContext.openOrCreateDatabase(AndroidClientHelper.DEFAULT_DATABASE_NAME, 0, null);
-        mDatabaseProvider = new DatabaseProvider(new SQLiteDatabaseWrapper(database));
+        String defaultKey = Settings.Secure.getString(mContext.getContentResolver(), Settings.Secure.ANDROID_ID);
+
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "key: " + defaultKey);
+        }
+
+        SQLiteDatabase.loadLibs(context);
+
+        String dbPath = "/data/data/" + mContext.getPackageName() + "/" +AndroidClientHelper.DEFAULT_DATABASE_NAME;
+        //String dbPath = mContext.getDatabasePath(AndroidClientHelper.DEFAULT_DATABASE_NAME).getAbsolutePath();
+
+        SQLiteDatabase database = SQLiteDatabase.openOrCreateDatabase( dbPath, defaultKey, null);
+        mDatabaseProvider = new DatabaseProvider(new SQLCipherDatabaseWrapper(database));
 
         mSessionId = AndroidClientHelper.generateSessionID(mContext);
 
