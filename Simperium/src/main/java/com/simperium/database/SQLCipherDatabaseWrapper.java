@@ -6,8 +6,8 @@ import android.database.Cursor;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 
-import com.simperium.database.encryption.BasicEncrypterLogic;
-import com.simperium.database.encryption.EncrypterLogic;
+import com.simperium.database.encryption.BasicEncryptionLogic;
+import com.simperium.database.encryption.EncryptionLogic;
 import com.simperium.database.encryption.EncryptionException;
 import com.simperium.util.Logger;
 
@@ -24,19 +24,19 @@ public class SQLCipherDatabaseWrapper implements DatabaseInterface {
 
     private static final String TAG = "SQLCipherDatabaseWrapper";
     protected SQLiteDatabase mDatabase;
-    protected EncrypterLogic mEncrypterLogic;
+    protected EncryptionLogic mEncryptionLogic;
 
     public SQLCipherDatabaseWrapper(@NonNull Context context, @NonNull String databaseName) {
-        this(context, databaseName, new BasicEncrypterLogic(context));
+        this(context, databaseName, new BasicEncryptionLogic(context));
     }
 
-    public SQLCipherDatabaseWrapper(@NonNull Context context, @NonNull String databaseName, EncrypterLogic encrypterLogic) {
-        mEncrypterLogic = encrypterLogic;
+    public SQLCipherDatabaseWrapper(@NonNull Context context, @NonNull String databaseName, EncryptionLogic encryptionLogic) {
+        mEncryptionLogic = encryptionLogic;
 
         String defaultKey = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
         String password = defaultKey;
-        if (mEncrypterLogic != null) {
-            password = mEncrypterLogic.getDatabaseEncryptionKey();
+        if (mEncryptionLogic != null) {
+            password = mEncryptionLogic.getDatabaseEncryptionKey();
         }
 
         //String dbPath = context.getDatabasePath(databaseName).getAbsolutePath();
@@ -121,8 +121,8 @@ public class SQLCipherDatabaseWrapper implements DatabaseInterface {
         try {
             mDatabase.changePassword(hashPassword(password));
 
-            if (mEncrypterLogic != null) {
-                mEncrypterLogic.saveDatabaseEncryptionKey(password);
+            if (mEncryptionLogic != null) {
+                mEncryptionLogic.saveDatabaseEncryptionKey(password);
             }
 
             return true;
@@ -135,8 +135,8 @@ public class SQLCipherDatabaseWrapper implements DatabaseInterface {
     }
 
     public String hashPassword(String password) throws EncryptionException {
-        if (mEncrypterLogic != null) {
-            return mEncrypterLogic.applyEncryption(password);
+        if (mEncryptionLogic != null) {
+            return mEncryptionLogic.applyEncryption(password);
         } else {
             return password;
         }

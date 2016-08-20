@@ -66,4 +66,11 @@ public class AndroidClientHelper {
                 new String[] { BuildConfig.SIMPERIUM_COM_SPKI }, 0);
     }
 
+    public static boolean isMigrated(Context context){
+        return  getSharedPreferences(context).getBoolean(Constants.SECURE_DATABASE_MIGRATED, false);
+    }
+
+    public static void setMigrated(Context context, boolean value){
+         getSharedPreferences(context).edit().putBoolean(Constants.SECURE_DATABASE_MIGRATED, value);
+    }
 }

@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.support.annotation.NonNull;
 
 import com.koushikdutta.async.http.AsyncHttpClient;
 import com.simperium.client.ClientFactory;
@@ -21,7 +22,7 @@ import javax.net.ssl.TrustManager;
  * Refactoring as much of the android specific components of the client
  * and decoupling different parts of the API.
  */
-public class AndroidClient implements ClientFactory {
+public class AndroidClient implements ClientFactory, MigrationInterface {
 
     public static final String TAG = "Simperium.AndroidClient";
 
@@ -77,4 +78,18 @@ public class AndroidClient implements ClientFactory {
         return mExecutor;
     }
 
+    @Override
+    public String getDatabaseToMigrate() {
+        return Constants.DEFAULT_DATABASE_NAME;
+    }
+
+    @Override
+    public boolean migrateFromDatabase(@NonNull String databaseName, @NonNull DatabaseType databaseType) throws MigrationException {
+        throw new MigrationException("Migration is not supported!");
+    }
+
+    @Override
+    public Context getMigrationContext() {
+        return mContext;
+    }
 }

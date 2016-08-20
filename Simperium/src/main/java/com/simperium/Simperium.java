@@ -1,8 +1,12 @@
 package com.simperium;
 
 import android.content.Context;
-import android.util.Log;
 
+import com.simperium.android.AndroidClient;
+import com.simperium.android.AndroidClientHelper;
+import com.simperium.android.MigrationException;
+import com.simperium.android.MigrationInterface;
+import com.simperium.android.SecureAndroidClient;
 import com.simperium.client.AuthException;
 import com.simperium.client.AuthProvider;
 import com.simperium.client.AuthResponseHandler;
@@ -16,7 +20,6 @@ import com.simperium.client.ClientFactory;
 import com.simperium.client.GhostStorageProvider;
 import com.simperium.client.Syncable;
 import com.simperium.client.User;
-import com.simperium.database.DatabaseHelper;
 import com.simperium.database.DatabaseProvider;
 import com.simperium.storage.StorageProvider;
 import com.simperium.storage.StorageProvider.BucketStore;
@@ -29,7 +32,11 @@ public class Simperium implements User.StatusChangeListener {
 
     // builds and Android client
     public static Simperium newClient(String appId, String appSecret, Context context){
-        return newClient(appId, appSecret, new com.simperium.android.AndroidClient(context));
+        if (!AndroidClientHelper.isMigrated(context)) {
+            return newClient(appId, appSecret, new com.simperium.android.AndroidClient(context));
+        } else {
+            return newClient(appId, appSecret, new com.simperium.android.SecureAndroidClient(context));
+        }
     }
 
     public static Simperium newClient(String appId, String appSecret, ClientFactory factory){
@@ -48,6 +55,7 @@ public class Simperium implements User.StatusChangeListener {
     private String appId;
     private String appSecret;
 
+    private ClientFactory currentFactory;
     private User user;
     private User.StatusChangeListener userListener;
     private static Simperium simperiumClient = null;
@@ -63,6 +71,7 @@ public class Simperium implements User.StatusChangeListener {
     public Simperium(String appId, String appSecret, ClientFactory factory){
         this.appId = appId;
         this.appSecret = appSecret;
+        this.currentFactory = factory;
 
         mAuthProvider = factory.buildAuthProvider(appId, appSecret);
 
@@ -252,7 +261,7 @@ public class Simperium implements User.StatusChangeListener {
     }
 
     /**
-     *
+     * Change you database password
      * @param password new password, if it is null, empty password will be used
      * @return true, if password change was successful
      */
@@ -262,6 +271,39 @@ public class Simperium implements User.StatusChangeListener {
             password = "";
         }
         return mDatabaseProvider.changePassword(password);
+    }
+
+    /**
+     * Migrate your current not secure database (currently in AndroidClient) to SecureAndriodClient
+     * It will keep your current data.
+     * @return true, if migration was successful
+     * @throws MigrationException
+     */
+    public boolean migrateToSecure() throws MigrationException{
+        boolean migrationSupported = currentFactory instanceof MigrationInterface;
+        if (!migrationSupported) {
+            throw new MigrationException("Migration is not supported on your current database!");
+        } else {
+            if (currentFactory instanceof AndroidClient){
+                migrateToSqlCipher();
+            } else {
+                throw new MigrationException("You have already migrated from the default database!");
+            }
+        }
+
+        return true;
+    }
+
+    protected void migrateToSqlCipher() throws MigrationException {
+
+        MigrationInterface current = (MigrationInterface)currentFactory;
+        Context migrationContext = current.getMigrationContext();
+        SecureAndroidClient client = new SecureAndroidClient(migrationContext);
+
+        boolean successful = client.migrateFromDatabase(current.getDatabaseToMigrate(), MigrationInterface.DatabaseType.DEFAULT);
+        if (successful) {
+            AndroidClientHelper.setMigrated(migrationContext, true);
+        }
     }
 
 }

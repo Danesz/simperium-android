@@ -11,5 +11,6 @@ public class Constants {
     public static final String SECURE_DATABASE_NAME = "simperium-store.enc";
     public static final String WEBSOCKET_URL = "https://api.simperium.com/sock/1/%s/websocket";
     public static final String USER_AGENT_HEADER = "User-Agent";
+    public static final String SECURE_DATABASE_MIGRATED = "secure-database-migrated";
 
 }

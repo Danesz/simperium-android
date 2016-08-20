@@ -5,6 +5,9 @@ import android.database.Cursor;
 
 /**
  * Created by daniel on 19/08/16.
+ *
+ * Wrapper around your datastore to hide the implementation.
+ *
  */
 public class DatabaseProvider implements DatabaseInterface {
 
