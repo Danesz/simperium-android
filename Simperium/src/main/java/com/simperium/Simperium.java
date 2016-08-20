@@ -253,23 +253,15 @@ public class Simperium implements User.StatusChangeListener {
 
     /**
      *
-     * @param context application context
      * @param password new password, if it is null, empty password will be used
      * @return true, if password change was successful
      */
-    //TODO: context should be moved out from the method params (but try to keep backward compatibility)
-    public boolean changePassword(Context context, String password){
+    public boolean changePassword(String password){
 
         if (password == null){
             password = "";
         }
-
-        boolean successful = mDatabaseProvider.changePassword(password);
-        if (successful)
-        {
-            DatabaseHelper.saveDatabaseEncryptionKey(context, password);
-        }
-        return successful;
+        return mDatabaseProvider.changePassword(password);
     }
 
 }

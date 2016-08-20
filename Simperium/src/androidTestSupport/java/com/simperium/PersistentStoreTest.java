@@ -170,7 +170,7 @@ public class PersistentStoreTest extends PersistentStoreBaseTest {
         DatabaseHelper helper = new DatabaseHelper(mDatabaseName);
         mDatabaseName = helper.getDatabaseName();
         helper.createDatabase();
-        mStore = new PersistentStore(new DatabaseProvider(new SQLiteDatabaseWrapper(helper.getWritableDatabase())));
+        mStore = new PersistentStore(new DatabaseProvider(new SQLiteDatabaseWrapper(mActivity, mDatabaseName)));
         BucketStore<Note> store = mStore.createStore(bucketName, schema);
         mBucket = new Bucket<Note>(MockExecutor.immediate(), BUCKET_NAME, mSchema, mUser, store, mGhostStore);
 
@@ -254,7 +254,7 @@ public class PersistentStoreTest extends PersistentStoreBaseTest {
         DatabaseHelper helper = new DatabaseHelper(mDatabaseName);
         mDatabaseName = helper.getDatabaseName();
         helper.createDatabase();
-        mStore = new PersistentStore(new DatabaseProvider(new SQLiteDatabaseWrapper(helper.getWritableDatabase())));
+        mStore = new PersistentStore(new DatabaseProvider(new SQLiteDatabaseWrapper(mActivity, mDatabaseName)));
         BucketStore<Note> store = mStore.createStore(bucketName, schema);
 
         int count;

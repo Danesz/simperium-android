@@ -52,7 +52,7 @@ public abstract class PersistentStoreBaseTest extends ActivityInstrumentationTes
         mActivity = getActivity();
         mDatabase = mActivity.openOrCreateDatabase(mDatabaseName, 0, null);
         mGhostStore = new MockGhostStore();
-        mStore = new PersistentStore(new DatabaseProvider(new SQLiteDatabaseWrapper(mDatabase)));
+        mStore = new PersistentStore(new DatabaseProvider(new SQLiteDatabaseWrapper(mActivity, mDatabaseName)));
         mSchema = new Note.Schema();
         mNoteStore = mStore.createStore(BUCKET_NAME, mSchema);
         mBucket = new Bucket<Note>(MockExecutor.immediate(), BUCKET_NAME, mSchema, mUser, mNoteStore, mGhostStore);

@@ -27,7 +27,7 @@ public class QueueSerializerTest extends ActivityInstrumentationTestCase2<LoginA
 
     protected void setUp() throws Exception {
         mDatabase = getActivity().openOrCreateDatabase("queue-test", 0, null);
-        mSerializer = new QueueSerializer(new DatabaseProvider(new SQLiteDatabaseWrapper(mDatabase)));
+        mSerializer = new QueueSerializer(new DatabaseProvider(new SQLiteDatabaseWrapper(getActivity(), "queue-test")));
         BucketObject.Schema schema = new BucketObject.Schema("mock-bucket");
          mBucket = MockBucket.buildBucket(schema);
     }

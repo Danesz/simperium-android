@@ -1,8 +1,14 @@
 package com.simperium.database;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
+import android.provider.Settings;
+import android.support.annotation.NonNull;
 
+import com.simperium.database.encryption.BasicEncrypterLogic;
+import com.simperium.database.encryption.EncrypterLogic;
+import com.simperium.database.encryption.EncryptionException;
 import com.simperium.util.Logger;
 
 import net.sqlcipher.database.SQLiteDatabase;
@@ -18,8 +24,25 @@ public class SQLCipherDatabaseWrapper implements DatabaseInterface {
 
     private static final String TAG = "SQLCipherDatabaseWrapper";
     protected SQLiteDatabase mDatabase;
+    protected EncrypterLogic mEncrypterLogic;
 
-    public SQLCipherDatabaseWrapper(SQLiteDatabase database){
+    public SQLCipherDatabaseWrapper(@NonNull Context context, @NonNull String databaseName) {
+        this(context, databaseName, new BasicEncrypterLogic(context));
+    }
+
+    public SQLCipherDatabaseWrapper(@NonNull Context context, @NonNull String databaseName, EncrypterLogic encrypterLogic) {
+        mEncrypterLogic = encrypterLogic;
+
+        String defaultKey = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+        String password = defaultKey;
+        if (mEncrypterLogic != null) {
+            password = mEncrypterLogic.getDatabaseEncryptionKey();
+        }
+
+        //String dbPath = context.getDatabasePath(databaseName).getAbsolutePath();
+        String dbPath = "/data/data/" + context.getPackageName() + "/" + databaseName;
+        SQLiteDatabase database = SQLiteDatabase.openOrCreateDatabase( dbPath, password, null);
+
         mDatabase = database;
     }
 
@@ -97,16 +120,25 @@ public class SQLCipherDatabaseWrapper implements DatabaseInterface {
     public boolean changePassword(String password) throws RuntimeException {
         try {
             mDatabase.changePassword(hashPassword(password));
+
+            if (mEncrypterLogic != null) {
+                mEncrypterLogic.saveDatabaseEncryptionKey(password);
+            }
+
             return true;
         } catch (SQLiteException e) {
             Logger.log(TAG, "Changing password failed!", e);
-        } catch (IllegalArgumentException e){
+        } catch (EncryptionException e){
             Logger.log(TAG, "Changing password failed in hashing!", e);
         }
         return false;
     }
 
-    public String hashPassword(String password) throws IllegalArgumentException {
-        return DatabaseHelper.wrapPassword(password);
+    public String hashPassword(String password) throws EncryptionException {
+        if (mEncrypterLogic != null) {
+            return mEncrypterLogic.applyEncryption(password);
+        } else {
+            return password;
+        }
     }
 }

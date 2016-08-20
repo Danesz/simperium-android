@@ -1,8 +1,10 @@
 package com.simperium.database;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.support.annotation.NonNull;
 
 /**
  * Created by daniel on 19/08/16.
@@ -14,7 +16,8 @@ public class SQLiteDatabaseWrapper implements DatabaseInterface {
 
     protected SQLiteDatabase mDatabase;
 
-    public SQLiteDatabaseWrapper(SQLiteDatabase database) {
+    public SQLiteDatabaseWrapper(@NonNull Context context, @NonNull String databaseName) {
+        android.database.sqlite.SQLiteDatabase database = context.openOrCreateDatabase(databaseName, 0, null);
         mDatabase = database;
     }
 
